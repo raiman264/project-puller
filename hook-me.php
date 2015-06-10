@@ -17,14 +17,20 @@ if( validate_request($request_body) ) {
 
    $ssh_key = "-i ".CORE_PATH."/".SSH_KEY_FILE;
 
-   if( !file_exists(BASE_DIRECTORY.$json_request->repository->name) ){
+   if( !file_exists(BASE_DIRECTORY."/".$json_request->repository->name) ){
       echo "proyect doesnt exist, cloning repo\n";
 
+      echo "chdir ".BASE_DIRECTORY."\n";
       chdir(BASE_DIRECTORY);
       $output = array();
       #exec("ssh-keygen -R github.com", $output);
 
-      $command = CORE_PATH."/git.sh $ssh_key clone ".escapeshellcmd($json_request->repository->ssh_url);
+      #use ssh
+      #$command = CORE_PATH."/git.sh $ssh_key clone ".escapeshellcmd($json_request->repository->ssh_url);
+
+      #use https
+      $command = "git clone ".escapeshellcmd($json_request->repository->clone_url);
+
       echo "\n".$command."\n";
       exec ( $command, $output, $return_var );
 
@@ -32,18 +38,19 @@ if( validate_request($request_body) ) {
 
       var_dump("result,", $return_var);
       
-      if($return_var){
+      if($return_var == 0){
          echo "\nsuccess";
       }
    } else {
        echo "proyect exist, pulling data\n";
 
-      chdir(BASE_DIRECTORY.$json_request->repository->name);
+      chdir(BASE_DIRECTORY."/".$json_request->repository->name);
       $output = array();
       #exec("ssh-keygen -R github.com", $output);
 
       
-      $command = CORE_PATH."/git.sh $ssh_key pull");
+      #$command = CORE_PATH."/git.sh $ssh_key pull";
+      $command = "git pull";
       echo "\n".$command."\n";
       exec ( $command, $output, $return_var );
 
@@ -51,7 +58,7 @@ if( validate_request($request_body) ) {
 
       var_dump("result,", $return_var);
       
-      if($return_var){
+      if($return_var == 0){
          echo "\nsuccess";
       }
    }
